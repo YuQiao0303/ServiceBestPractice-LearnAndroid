@@ -122,61 +122,70 @@ public class DownloadService extends Service {
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
 
-
+        /**
+         * 8.0及以上：前台服务
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*create notification channel*/
-            String channelId = "1";
+            //String channelId = "1";
             String channelName = "1";
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            createNotificationChannel(channelId, channelName, importance);
+            createNotificationChannel(title, channelName, importance);
 
             /*show the notification*/
-            Notification notification = new NotificationCompat.Builder(this, channelId)
-                    .setContentTitle("This is content title")
-                    .setContentText("This is content text")
-                    .setWhen(System.currentTimeMillis())
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                            R.mipmap.ic_launcher))
-                    .setContentIntent(pi)
-                    .build();
-            startForeground(1, notification);//调用startForeground() 方法后就会让MyService变成一个前台服务， 并在系统状态栏显示出来。
+
+            if (progress >= 0) {
+                // 当progress大于或等于0时才需显示下载进度
+
+                //setProgress() 方法接收3个参数，
+                // 第一个参数传入通知的最大进度，
+                // 第二个参数传入通知的当前进度，
+                // 第三个参数表示是否使用模糊进度条， 这里传入false 。
+                // 设置完setProgress() 方法， 通知上就会有进度条显示出来了。
+                Notification notification = new NotificationCompat.Builder(this, title)
+                        .setContentTitle(title)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                                R.mipmap.ic_launcher))
+                        .setContentIntent(pi)
+                        .setContentText(progress + "%")
+                        .setProgress(100, progress, false)
+                        .build();
+                return notification;
+            }else {
+                Notification notification = new NotificationCompat.Builder(this, title)
+                        .setContentTitle(title)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                                R.mipmap.ic_launcher))
+                        .setContentIntent(pi)
+                        .build();
+                return notification;
+            }
+
         }
         /**
          * 7.0及以下：前台服务
          */
         else{
-            Notification notification = new NotificationCompat.Builder(this)
-                    .setContentTitle("This is content title")
-                    .setContentText("This is content text")
-                    .setWhen(System.currentTimeMillis())
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                            R.mipmap.ic_launcher))
-                    .setContentIntent(pi)
-                    .build();
-            startForeground(1, notification);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                    R.mipmap.ic_launcher));
+            builder.setContentIntent(pi);
+            builder.setContentTitle(title);
+            if (progress >= 0) {
+                // 当progress大于或等于0时才需显示下载进度
+                builder.setContentText(progress + "%");
+                //setProgress() 方法接收3个参数，
+                // 第一个参数传入通知的最大进度，
+                // 第二个参数传入通知的当前进度，
+                // 第三个参数表示是否使用模糊进度条， 这里传入false 。
+                // 设置完setProgress() 方法， 通知上就会有进度条显示出来了。
+                builder.setProgress(100, progress, false);
+            }
+            return builder.build();
         }
-
-
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                R.mipmap.ic_launcher));
-        builder.setContentIntent(pi);
-        builder.setContentTitle(title);
-        if (progress >= 0) {
-            // 当progress大于或等于0时才需显示下载进度
-            builder.setContentText(progress + "%");
-            //setProgress() 方法接收3个参数，
-            // 第一个参数传入通知的最大进度，
-            // 第二个参数传入通知的当前进度，
-            // 第三个参数表示是否使用模糊进度条， 这里传入false 。
-            // 设置完setProgress() 方法， 通知上就会有进度条显示出来了。
-            builder.setProgress(100, progress, false);
-        }
-        return builder.build();
     }
     @TargetApi(Build.VERSION_CODES.O)
     private void createNotificationChannel(String channelId, String channelName, int importance) {
