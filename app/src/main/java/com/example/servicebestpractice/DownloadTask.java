@@ -140,6 +140,11 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> {
 
     /**
      * 通知最终的下载结果
+     *
+     * 当后台任务执行完毕并通过return 语句进行返回时， 这个方法就很快会被调用。
+     * 返回的数据会作为参数传递到此方法中， 可以利用返回的数据来进行一些UI操作
+     * 比如说提醒任务执行的结果， 以及关闭掉进度条对话框等。
+     *
      * @param status
      */
     @Override

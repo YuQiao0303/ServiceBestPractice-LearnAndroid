@@ -24,7 +24,7 @@ public class DownloadService extends Service {
     private DownloadTask downloadTask;
     private String downloadUrl;
     /**
-     * 监听接口
+     * 监听接口:负责通知显示和清空DownloadTask
      */
     private DownloadListener listener = new DownloadListener() {
         @Override
@@ -32,8 +32,10 @@ public class DownloadService extends Service {
             // 构建了一个用于显示下载进度的通知
             // 然后调用NotificationManager的notify() 方法去触发这个通知，
             // 这样就可以在下拉状态栏中实时看到当前下载的进度了
-            getNotificationManager().notify(1, getNotification("Downloading...",
+            getNotificationManager().notify(1, getNotification("Downloading by listener",
                     progress));
+            Toast.makeText(DownloadService.this, "Downloading by listener",
+                    Toast.LENGTH_SHORT).show();
         }
         @Override
         public void onSuccess() {
@@ -84,8 +86,8 @@ public class DownloadService extends Service {
                 downloadUrl = url;
                 downloadTask = new DownloadTask(listener);
                 downloadTask.execute(downloadUrl);
-                startForeground(1, getNotification("Downloading...", 0));
-                Toast.makeText(DownloadService.this, "Downloading...", Toast.
+                startForeground(1, getNotification("Downloading in binder", 0));
+                Toast.makeText(DownloadService.this, "Downloading in binder", Toast.
                         LENGTH_SHORT).show();
             }
         }
